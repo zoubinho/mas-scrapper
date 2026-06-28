@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MAS FID Directory</title>
+  <link rel="stylesheet" href="/static/theme.css" />
+  <link rel="stylesheet" href="/static/styles.css" />
+  <link rel="icon" href="/static/assets/prive-logo.svg" />
+</head>
+<body>
+  <!-- ============ Header ============ -->
+  <header class="app-header">
+    <div class="brand">
+      <img class="logo" src="/static/assets/prive-logo.svg" alt="Privé" />
+      <span class="divider"></span>
+      <span class="app-title">MAS FID Directory</span>
+    </div>
+    <div class="header-spacer"></div>
+    <button id="themeToggle" class="theme-toggle" title="Toggle theme" aria-label="Toggle theme">🌙</button>
+  </header>
+
+  <!-- ============ Tabs ============ -->
+  <nav class="tabs">
+    <button class="tab active" data-tab="delta">Week-over-week delta</button>
+    <button class="tab" data-tab="directory">Directory</button>
+    <button class="tab" data-tab="config">Config</button>
+  </nav>
+
+  <main>
+    <!-- ============ DELTA TAB ============ -->
+    <section id="panel-delta" class="panel active">
+      <div id="deltaBanner" class="banner hidden"></div>
+
+      <div class="toolbar">
+        <button id="refreshBtn" class="btn btn-primary">↻ Refresh from MAS</button>
+        <span id="refreshMeta" class="meta"></span>
+        <span class="grow"></span>
+        <button id="deltaFilterToggle" class="btn btn-sm">Filters</button>
+      </div>
+
+      <div id="deltaFilters" class="card" style="display:none;">
+        <div class="toolbar" style="margin:0;">
+          <label class="field" style="flex:1; min-width:220px;">Sector
+            <select id="deltaSector" multiple></select>
+          </label>
+          <label class="field" style="flex:1; min-width:260px;">Licence type / status
+            <select id="deltaLicence" multiple></select>
+          </label>
+          <label class="field" style="flex:1; min-width:220px;">Search name / address
+            <input id="deltaQuery" type="search" placeholder="e.g. capital, robinson road" />
+          </label>
+        </div>
+        <div class="toolbar" style="margin:12px 0 0;">
+          <button id="deltaApply" class="btn btn-primary btn-sm">Apply filters</button>
+          <button id="deltaReset" class="btn btn-sm">Reset</button>
+          <span class="meta">Hold Ctrl / Cmd to multi-select.</span>
+        </div>
+      </div>
+
+      <div id="deltaBody"></div>
+    </section>
+
+    <!-- ============ DIRECTORY TAB ============ -->
+    <section id="panel-directory" class="panel">
+      <div class="toolbar">
+        <label class="field" style="min-width:220px;">Sector
+          <select id="dirSector" multiple></select>
+        </label>
+        <label class="field" style="min-width:260px;">Licence type / status
+          <select id="dirLicence" multiple></select>
+        </label>
+        <label class="field" style="flex:1; min-width:240px;">Search name / address
+          <input id="dirQuery" type="search" placeholder="Type to search…" />
+        </label>
+        <div style="display:flex; gap:8px; align-self:flex-end;">
+          <button id="dirApply" class="btn btn-primary btn-sm">Search</button>
+          <button id="dirReset" class="btn btn-sm">Reset</button>
+        </div>
+      </div>
+      <div id="dirMeta" class="meta" style="margin-bottom:10px;"></div>
+      <div id="dirBody"></div>
+    </section>
+
+    <!-- ============ CONFIG TAB ============ -->
+    <section id="panel-config" class="panel">
+      <div class="card">
+        <h2>Upload a snapshot</h2>
+        <p class="muted">
+          If auto-refresh is unavailable, download the export from
+          <a href="https://eservices.mas.gov.sg/fid/institution/print" target="_blank" rel="noopener">
+          eservices.mas.gov.sg/fid/institution/print</a>
+          and drop it here. Files are stored as <code>FID_YYYY-MM-DD.xls</code>;
+          the date is read from the filename when present, otherwise today's date is used.
+        </p>
+        <div id="dropzone" class="dropzone">
+          <p><strong>Drag &amp; drop</strong> a FID export here, or click to choose a file.</p>
+          <p class="meta">Accepts the MAS .xls/.csv export (tab- or comma-separated).</p>
+          <input id="fileInput" type="file" accept=".xls,.xlsx,.csv,.tsv,.txt" hidden />
+        </div>
+        <div id="uploadMsg" class="meta" style="margin-top:10px;"></div>
+      </div>
+
+      <div class="card">
+        <h2>Snapshots in the system</h2>
+        <p class="muted">
+          Auto-cleanup keeps the newest <strong id="maxFiles">10</strong> files; older ones are
+          removed automatically on refresh/upload. Storage path:
+          <code id="dataDir"></code>
+        </p>
+        <div id="filesBody"></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,323 @@
+/* ------------------------------------------------------------------ */
+/* MAS FID Directory — internal app styles (Prive design system)        */
+/* ------------------------------------------------------------------ */
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Proxima Nova", "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+/* ---- Header / shell ---------------------------------------------- */
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 60px;
+  padding: 0 24px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: var(--text);
+}
+
+.brand .logo { height: 26px; width: auto; display: block; }
+
+.brand .divider {
+  width: 1px;
+  height: 26px;
+  background: var(--border);
+}
+
+.app-title {
+  font-size: 21px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.header-spacer { flex: 1; }
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 18px;
+  transition: background .15s, border-color .15s;
+}
+.theme-toggle:hover { border-color: var(--accent); }
+
+/* ---- Tabs --------------------------------------------------------- */
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 0 24px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.tab {
+  appearance: none;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.tab:hover { color: var(--text); }
+.tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* ---- Layout ------------------------------------------------------- */
+
+main { padding: 24px; max-width: 1400px; margin: 0 auto; }
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ---- Buttons ------------------------------------------------------ */
+
+.btn {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  padding: 9px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, opacity .15s;
+}
+.btn:hover { border-color: var(--accent); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+.btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+.btn-primary:active { background: var(--accent-active); }
+
+.btn-danger { color: var(--danger); border-color: transparent; background: transparent; }
+.btn-danger:hover { border-color: var(--danger); }
+
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+
+/* ---- Banner ------------------------------------------------------- */
+
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  margin-bottom: 18px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+.banner .icon { font-size: 18px; }
+.banner.info   { border-color: var(--accent); }
+.banner.info .icon { color: var(--accent); }
+.banner.warn   { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--surface)); }
+.banner.muted  { color: var(--text-muted); }
+.banner.error  { border-color: var(--danger); }
+.banner.error .icon { color: var(--danger); }
+.banner.hidden { display: none; }
+
+/* ---- Toolbar / controls ------------------------------------------ */
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.toolbar .grow { flex: 1; }
+
+.muted { color: var(--text-muted); }
+.meta { color: var(--text-muted); font-size: 13px; }
+
+/* ---- KPI cards ---------------------------------------------------- */
+
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.kpi {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 18px;
+}
+.kpi .label { color: var(--text-muted); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+.kpi .value { font-size: 28px; font-weight: 700; margin-top: 6px; }
+.kpi .value.accent  { color: var(--accent); }
+.kpi .value.success { color: var(--success); }
+.kpi .value.danger  { color: var(--danger); }
+
+/* ---- Cards / sections -------------------------------------------- */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 20px;
+}
+.card h2, .card h3 { margin: 0 0 14px 0; font-size: 16px; font-weight: 600; }
+.section-title { display: flex; align-items: center; gap: 10px; margin: 0 0 12px 0; }
+.section-title .count { color: var(--text-muted); font-weight: 500; font-size: 13px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.dot.new { background: var(--success); }
+.dot.removed { background: var(--danger); }
+
+/* ---- Form controls ----------------------------------------------- */
+
+input[type="text"], input[type="search"], select {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-family: inherit;
+}
+input::placeholder { color: var(--text-muted); }
+input:focus, select:focus { outline: none; border-color: var(--accent); }
+select[multiple] { min-height: 110px; padding: 4px; }
+label.field { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--text-muted); }
+
+/* ---- Tables ------------------------------------------------------- */
+
+.table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; }
+table.data {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+table.data th, table.data td {
+  text-align: left;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+table.data thead th {
+  background: var(--surface-2);
+  position: sticky;
+  top: 0;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: default;
+}
+table.data tbody tr:hover { background: var(--surface-2); }
+table.data td.wrap { white-space: pre-wrap; max-width: 320px; }
+.empty { padding: 18px; color: var(--text-muted); font-style: italic; }
+
+/* ---- Pagination --------------------------------------------------- */
+
+.pager { display: flex; align-items: center; gap: 12px; margin-top: 14px; }
+
+/* ---- Chart -------------------------------------------------------- */
+
+.chart-legend { display: flex; gap: 18px; margin: 6px 0 12px; font-size: 13px; }
+.chart-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.chart-svg { width: 100%; height: 340px; display: block; }
+.chart-svg text { fill: var(--text-muted); font-size: 11px; }
+.chart-svg .bar-label { fill: var(--text); font-weight: 600; }
+.chart-svg .axis { stroke: var(--border); }
+.chart-svg .grid { stroke: var(--border); stroke-dasharray: 3 3; opacity: .6; }
+
+/* ---- Dropzone ----------------------------------------------------- */
+
+.dropzone {
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  padding: 32px;
+  text-align: center;
+  color: var(--text-muted);
+  background: var(--surface-2);
+  transition: border-color .15s, background .15s;
+  cursor: pointer;
+}
+.dropzone.drag { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--surface-2)); color: var(--text); }
+.dropzone strong { color: var(--text); }
+
+/* ---- Chips -------------------------------------------------------- */
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  font-size: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px 10px;
+  color: var(--text-muted);
+}
+
+/* ---- Spinner ------------------------------------------------------ */
+
+.spinner {
+  width: 16px; height: 16px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  display: inline-block;
+  animation: spin .7s linear infinite;
+  vertical-align: -3px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.toast {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  box-shadow: var(--shadow);
+  z-index: 100;
+  max-width: 380px;
+}
+.toast.error { border-color: var(--danger); }
+.toast.success { border-color: var(--success); }
+.toast.hidden { display: none; }

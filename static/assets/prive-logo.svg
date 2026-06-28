@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="78" height="28" viewBox="0 0 78 28" role="img" aria-label="Privé">
+  <!-- Fallback Privé wordmark. Replace with the official assets/prive-logo.png
+       when available. Uses currentColor so it adapts to the active theme;
+       the accented é is rendered in the brand accent colour. -->
+  <text x="0" y="21" fill="currentColor"
+        font-family="'Proxima Nova', 'Segoe UI', system-ui, sans-serif"
+        font-weight="700" font-size="23" letter-spacing="0.3">Priv<tspan fill="#FF8A3D">é</tspan></text>
+</svg>

@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+*.tmp
+.venv/
+venv/
+data/
+mas_data/FID_*.tmp
+.DS_Store

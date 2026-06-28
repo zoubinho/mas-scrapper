@@ -1,0 +1,47 @@
+/*
+ * Privé — Internal App Design System tokens.
+ * Two themes driven by [data-theme="dark|light"] on the root element.
+ * Dark is the default.
+ */
+
+:root,
+[data-theme="dark"] {
+  --bg: #0A0A0A;
+  --surface: #161616;
+  --surface-2: #1F1F1F;
+  --border: #2A2A2A;
+  --text: #F7F8FA;
+  --text-muted: #A1A1AA;
+  --accent: #FF8A3D;
+  --accent-hover: #FF9D5C;
+  --accent-active: #E06F26;
+  --on-accent: #0A0A0A;
+  --danger: #F26D6D;
+  --success: #4ECB71;
+
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+[data-theme="light"] {
+  --bg: #F4F6F8;
+  --surface: #FFFFFF;
+  --surface-2: #EEF1F4;
+  --border: #D9DEE4;
+  --text: #16202A;
+  --text-muted: #5B6573;
+  --accent: #0E3C5C;       /* Privé navy anchors the light skin */
+  --accent-hover: #14507A;
+  --accent-active: #0A2D45;
+  --on-accent: #FFFFFF;
+  --danger: #C0392B;
+  --success: #1F9D55;
+
+  --shadow: 0 6px 18px rgba(16, 32, 44, 0.10);
+}
+
+/*
+ * Theme persistence pattern (applied in app.js):
+ *   const t = localStorage.getItem('theme') || 'dark';
+ *   document.documentElement.setAttribute('data-theme', t);
+ * Toggle writes the new value back to localStorage.
+ */
