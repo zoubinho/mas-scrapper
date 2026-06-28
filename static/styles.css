@@ -176,6 +176,36 @@ main { padding: 24px; max-width: 1400px; margin: 0 auto; }
 
 /* ---- KPI cards ---------------------------------------------------- */
 
+/* Today's date highlight — accent pill, distinct from the comparison dates.
+   Orange on dark, navy on light (both via --accent). */
+.today {
+  color: var(--accent);
+  font-weight: 700;
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  padding: 1px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* Delta top region: KPIs stacked on the left, bar chart on the right. */
+.delta-top {
+  display: grid;
+  grid-template-columns: minmax(210px, 260px) 1fr;
+  gap: 20px;
+  align-items: stretch;
+  margin-bottom: 20px;
+}
+.kpi-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.kpi-col .kpi { flex: 1; }
+.chart-card { margin-bottom: 0; }
+@media (max-width: 820px) {
+  .delta-top { grid-template-columns: 1fr; }
+}
+
 .kpi-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
