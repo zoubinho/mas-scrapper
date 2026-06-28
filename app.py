@@ -29,7 +29,7 @@ app.config["MAX_CONTENT_LENGTH"] = 64 * 1024 * 1024  # 64 MB upload cap
 
 DELTA_COLS = [
     "Organisation Name", "Sector", "Licence Type/Status",
-    "Activity/Business Type", "Address", "Phone Number", "Website",
+    "Address", "Phone Number", "Website",
 ]
 DIRECTORY_COLS = [
     "Organisation Name", "Sector", "Licence Type/Status",
