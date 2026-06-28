@@ -11,8 +11,6 @@ institutions — as a chart and tables. A second tab provides the full directory
 with smart filters, and a Config tab manages stored files (with manual upload
 as a fallback when auto-fetch isn't possible).
 
-![delta tab](static/assets/prive-logo.svg)
-
 ## What it does
 
 - **Refresh from MAS** — fetches the directory on demand, validates it, and
@@ -36,20 +34,57 @@ as a fallback when auto-fetch isn't possible).
 - **Auto-cleanup** — keeps the newest `MAS_MAX_FILES` (default **10**); older
   snapshots are deleted automatically on every refresh/upload.
 
-## Run with Docker (recommended)
+## Run from the pre-built image (GHCR)
+
+A GitHub Actions workflow builds and publishes the image to the GitHub
+Container Registry on every push (see `.github/workflows/docker-publish.yml`).
+The app listens on **5570**.
 
 ```bash
-docker compose up --build
-# open http://localhost:8000
+docker pull ghcr.io/zoubinho/mas-scrapper:main
+
+docker run -d --name mas-scrapper --restart unless-stopped -p 5570:5570 \
+  ghcr.io/zoubinho/mas-scrapper:main
+# open http://<server>:5570
 ```
 
-Snapshots persist in the named volume `mas_data` (mounted at `/data`).
-
-Or plain Docker:
+**Persist snapshots across container re-creation** by mounting a volume
+(otherwise data lives in an anonymous volume that survives restarts but not
+`docker rm` + fresh `docker run`):
 
 ```bash
-docker build -t mas-fid .
-docker run -p 8000:8000 -v mas_fid_data:/data mas-fid
+docker run -d --name mas-scrapper --restart unless-stopped -p 5570:5570 \
+  -v mas_data:/data ghcr.io/zoubinho/mas-scrapper:main
+```
+
+> **First-time setup (one-off):** the `:main` tag exists once the workflow has
+> run on the `main` branch (merge this branch first, or trigger the workflow
+> manually). To `docker pull` without logging in, make the package **public**:
+> GitHub → repo **Packages** → `mas-scrapper` → *Package settings* →
+> *Change visibility* → **Public**. If you keep it private, authenticate first:
+> ```bash
+> echo $GHCR_PAT | docker login ghcr.io -u zoubinho --password-stdin
+> ```
+> (a Personal Access Token with `read:packages`). To test before merging, use
+> the branch tag, e.g. `ghcr.io/zoubinho/mas-scrapper:claude-mas-institutions-scraper-auto-r38r44`.
+
+## Run with Docker Compose
+
+```bash
+docker compose up -d        # pulls ghcr.io/zoubinho/mas-scrapper:main
+# open http://localhost:5570
+```
+
+Snapshots persist in the named volume `mas_data` (mounted at `/data`). To build
+locally instead of pulling, comment out `image:` and uncomment `build: .` in
+`docker-compose.yml`.
+
+## Build the image yourself
+
+```bash
+docker build -t mas-scrapper .
+docker run -d --name mas-scrapper --restart unless-stopped -p 5570:5570 \
+  -v mas_data:/data mas-scrapper
 ```
 
 ## Run locally (dev)
@@ -57,7 +92,8 @@ docker run -p 8000:8000 -v mas_fid_data:/data mas-fid
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-python app.py            # http://localhost:8000  (PORT env to override)
+playwright install chromium   # one-off, for auto-refresh outside Docker
+python app.py                 # http://localhost:5570  (PORT env to override)
 ```
 
 Locally the data directory defaults to `./mas_data` (where the sample
@@ -76,7 +112,7 @@ delta needs **two** snapshots — click Refresh or upload a second file.
 | `MAS_FETCH_TIMEOUT` | `120` | HTTP timeout (seconds) |
 | `MAS_PLAYWRIGHT_TIMEOUT` | `60000` | Headless-browser navigation timeout (ms) |
 | `MAS_CHROMIUM_PATH` | _(auto)_ | Explicit Chromium binary; only needed if Playwright can't auto-locate one |
-| `PORT` | `8000` | Listen port |
+| `PORT` | `5570` | Listen port |
 
 ## How the fetch works
 
