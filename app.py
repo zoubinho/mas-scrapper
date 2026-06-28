@@ -92,6 +92,7 @@ def _delta_payload(drop_cessation: bool = True) -> dict:
         "files": _file_info(),
         "max_files": core.MAX_FILES,
         "data_dir": str(core.data_dir()),
+        "today": _dt.date.today().isoformat(),
     }
     if len(files) < 2:
         base.update({

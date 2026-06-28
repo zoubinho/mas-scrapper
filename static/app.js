@@ -10,6 +10,15 @@ function esc(s) {
     .replace(/"/g, "&quot;");
 }
 
+// Format an ISO date (YYYY-MM-DD) as dd-mmm-yy, e.g. 28-Jun-26.
+const _MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                 "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+function fmtDate(iso) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ""));
+  if (!m) return iso || "";
+  return `${m[3]}-${_MONTHS[+m[2] - 1]}-${m[1].slice(2)}`;
+}
+
 async function api(url, opts) {
   const res = await fetch(url, opts);
   let data = null;
@@ -106,13 +115,13 @@ function renderBanner(data) {
   if (r && r.unchanged) {
     b.className = "banner warn";
     b.innerHTML = `<span class="icon">⚠️</span><div><strong>No update.</strong>
-      The MAS directory is unchanged since <strong>${esc(r.date)}</strong> — no new snapshot stored.</div>`;
+      The MAS directory is unchanged since <strong>${esc(fmtDate(r.date))}</strong> — no new snapshot stored.</div>`;
     return;
   }
   if (data.available && data.no_changes) {
     b.className = "banner warn";
     b.innerHTML = `<span class="icon">⚠️</span><div><strong>No week-over-week changes</strong>
-      between <strong>${esc(data.old_date)}</strong> and <strong>${esc(data.new_date)}</strong>.</div>`;
+      between <strong>${esc(fmtDate(data.old_date))}</strong> and <strong>${esc(fmtDate(data.new_date))}</strong>.</div>`;
     return;
   }
   if (!data.available) {
@@ -125,7 +134,7 @@ function renderBanner(data) {
     let extra = r.deleted && r.deleted.length
       ? ` Auto-cleanup removed ${r.deleted.length} old file(s).` : "";
     b.innerHTML = `<span class="icon">✅</span><div><strong>Updated.</strong>
-      New snapshot <strong>${esc(r.date)}</strong> stored.${extra}</div>`;
+      New snapshot <strong>${esc(fmtDate(r.date))}</strong> stored.${extra}</div>`;
     return;
   }
   b.className = "banner hidden";
@@ -136,11 +145,14 @@ function renderDelta(data) {
   renderBanner(data);
 
   const meta = $("#refreshMeta");
+  const todayStr = fmtDate(data.today);
+  const todayHTML = todayStr ? `Today is <span class="today">${esc(todayStr)}</span>` : "";
   if (data.available) {
-    meta.innerHTML = `Comparing <strong>${esc(data.old_date)}</strong> →
-      <strong>${esc(data.new_date)}</strong>`;
+    meta.innerHTML = `Comparing <strong>${esc(fmtDate(data.old_date))}</strong> → ` +
+      `<strong>${esc(fmtDate(data.new_date))}</strong>` +
+      (todayHTML ? ` &nbsp;·&nbsp; ${todayHTML}` : "");
   } else {
-    meta.textContent = "";
+    meta.innerHTML = todayHTML;
   }
 
   // populate filter selects (preserve selection)
@@ -154,24 +166,26 @@ function renderDelta(data) {
   const netSign = data.net_change > 0 ? "+" : "";
 
   body.innerHTML = `
-    <div class="kpi-row">
-      <div class="kpi"><div class="label">Total institutions</div>
-        <div class="value">${data.new_count.toLocaleString()}</div></div>
-      <div class="kpi"><div class="label">Net change</div>
-        <div class="value ${netClass}">${netSign}${data.net_change}</div></div>
-      <div class="kpi"><div class="label">New this week</div>
-        <div class="value success">${data.total_new}</div></div>
-      <div class="kpi"><div class="label">Removed this week</div>
-        <div class="value danger">${data.total_removed}</div></div>
-    </div>
-
-    <div class="card">
-      <h3>Movements by sector (week-over-week)</h3>
-      <div class="chart-legend">
-        <span><span class="swatch" style="background:var(--success)"></span>New</span>
-        <span><span class="swatch" style="background:var(--danger)"></span>Removed</span>
+    <div class="delta-top">
+      <div class="kpi-col">
+        <div class="kpi"><div class="label">Total institutions</div>
+          <div class="value">${data.new_count.toLocaleString()}</div></div>
+        <div class="kpi"><div class="label">Net change</div>
+          <div class="value ${netClass}">${netSign}${data.net_change}</div></div>
+        <div class="kpi"><div class="label">New this week</div>
+          <div class="value success">${data.total_new}</div></div>
+        <div class="kpi"><div class="label">Removed this week</div>
+          <div class="value danger">${data.total_removed}</div></div>
       </div>
-      <div id="chart"></div>
+
+      <div class="card chart-card">
+        <h3>Movements by sector (week-over-week)</h3>
+        <div class="chart-legend">
+          <span><span class="swatch" style="background:var(--success)"></span>New</span>
+          <span><span class="swatch" style="background:var(--danger)"></span>Removed</span>
+        </div>
+        <div id="chart"></div>
+      </div>
     </div>
 
     <div class="card">
@@ -254,7 +268,7 @@ function renderChart(chart) {
   for (let v = 0; v <= maxV; v += step) ticks.push(v);
   if (ticks[ticks.length - 1] !== maxV) ticks.push(maxV);
 
-  let svg = `<svg class="chart-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">`;
+  let svg = `<svg class="chart-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMinYMid meet">`;
   // gridlines + y labels
   for (const t of ticks) {
     const yy = y(t);
@@ -358,7 +372,7 @@ async function loadDirectory() {
   populateSelect($("#dirSector"), data.all_sectors);
   populateSelect($("#dirLicence"), data.all_licence_types);
 
-  meta.innerHTML = `Snapshot <strong>${esc(data.date)}</strong> · showing
+  meta.innerHTML = `Snapshot <strong>${esc(fmtDate(data.date))}</strong> · showing
     <strong>${data.total.toLocaleString()}</strong> of ${data.grand_total.toLocaleString()} institutions`;
 
   body.innerHTML = tableHTML(data.rows, data.columns) + `
@@ -399,7 +413,7 @@ function renderFiles(files, maxFiles) {
   }
   const rows = files.map((f, i) => `
     <tr>
-      <td><strong>${esc(f.date)}</strong>${i === 0 ? ' <span class="chip">latest</span>' : ""}</td>
+      <td><strong>${esc(fmtDate(f.date))}</strong>${i === 0 ? ' <span class="chip">latest</span>' : ""}</td>
       <td>${esc(f.name)}</td>
       <td>${f.size_kb.toLocaleString()} KB</td>
       <td>${esc(f.modified.replace("T", " "))}</td>
