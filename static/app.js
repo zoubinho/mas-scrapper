@@ -54,22 +54,33 @@ function qs(params) {
 }
 
 // ---------------------------------------------------------------- theme
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  updateThemeIcon(theme);
+  setLogo(theme);
+  if (lastDelta) renderChart(lastDelta.chart || []); // SVG picks up theme vars
+}
 function initTheme() {
   const saved = localStorage.getItem("theme") || "dark";
-  document.documentElement.setAttribute("data-theme", saved);
-  updateThemeIcon(saved);
+  applyTheme(saved);
   $("#themeToggle").addEventListener("click", () => {
     const cur = document.documentElement.getAttribute("data-theme");
     const next = cur === "dark" ? "light" : "dark";
-    document.documentElement.setAttribute("data-theme", next);
     localStorage.setItem("theme", next);
-    updateThemeIcon(next);
-    // Re-render the chart so SVG colors pick up the new theme vars.
-    if (lastDelta) renderChart(lastDelta.chart || []);
+    applyTheme(next);
   });
 }
 function updateThemeIcon(theme) {
   $("#themeToggle").textContent = theme === "dark" ? "🌙" : "☀️";
+}
+// Prefer the official PNG (prive-logo-<theme>.png); fall back to the bundled SVG.
+function setLogo(theme) {
+  const img = $("#brandLogo");
+  if (!img) return;
+  const svg = `/static/assets/prive-logo-${theme}.svg`;
+  const png = `/static/assets/prive-logo-${theme}.png`;
+  img.onerror = () => { img.onerror = null; img.src = svg; };
+  img.src = png;
 }
 
 // ---------------------------------------------------------------- tabs
