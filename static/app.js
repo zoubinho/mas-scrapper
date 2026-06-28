@@ -211,13 +211,18 @@ function copySummary(data) {
 
 function tableHTML(rows, cols) {
   if (!rows || !rows.length) return `<div class="empty">None match current filters.</div>`;
-  const wrapCols = new Set(["Activity/Business Type", "Sub-Activity/Product", "Address"]);
+  // Long, noisy columns: truncate to one line with the full text on hover.
+  const clampCols = new Set(["Activity/Business Type", "Sub-Activity/Product"]);
+  const wrapCols = new Set(["Address"]);
   const head = cols.map((c) => `<th>${esc(c)}</th>`).join("");
   const body = rows.map((r) => "<tr>" + cols.map((c) => {
     const v = r[c] ?? "";
     if (c === "Website" && v) {
       const href = v.startsWith("http") ? v : "http://" + v;
       return `<td><a href="${esc(href)}" target="_blank" rel="noopener">${esc(v)}</a></td>`;
+    }
+    if (clampCols.has(c)) {
+      return `<td class="clamp" title="${esc(v)}">${esc(v)}</td>`;
     }
     return `<td class="${wrapCols.has(c) ? "wrap" : ""}">${esc(v)}</td>`;
   }).join("") + "</tr>").join("");

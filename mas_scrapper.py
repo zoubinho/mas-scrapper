@@ -133,7 +133,14 @@ def load_file(path: Path) -> pd.DataFrame:
 
     for col in df.columns:
         df[col] = df[col].astype(str).str.strip()
-    return df
+
+    # Drop rows that are not real institutions: a header row that leaked into
+    # the body (e.g. when a scraped table has no separate <thead>) or rows with
+    # a blank organisation name. These otherwise surface as a bogus "new" entry
+    # and pollute the deduplicated directory.
+    name = df["Organisation Name"].astype(str).str.strip()
+    df = df[(name != "") & (name.str.lower() != "organisation name")]
+    return df.reset_index(drop=True)
 
 
 def deduplicate(df: pd.DataFrame) -> pd.DataFrame:
