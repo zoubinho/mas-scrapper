@@ -1,4 +1,4 @@
-# MAS Financial Institutions Directory — Delta App
+# MAS Financial Institutions Directory
 
 A small internal web app (Privé design system) that automates the weekly
 [MAS Financial Institutions Directory](https://eservices.mas.gov.sg/fid/institution)
