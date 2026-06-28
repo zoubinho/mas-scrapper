@@ -30,7 +30,7 @@ a:hover { color: var(--accent-hover); text-decoration: underline; }
   display: flex;
   align-items: center;
   gap: 16px;
-  height: 60px;
+  height: 64px;
   padding: 0 24px;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
@@ -43,11 +43,11 @@ a:hover { color: var(--accent-hover); text-decoration: underline; }
   color: var(--text);
 }
 
-.brand .logo { height: 26px; width: auto; display: block; }
+.brand .logo { height: 38px; width: auto; display: block; }
 
 .brand .divider {
   width: 1px;
-  height: 26px;
+  height: 30px;
   background: var(--border);
 }
 
