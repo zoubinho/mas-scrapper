@@ -15,8 +15,10 @@ as a fallback when auto-fetch isn't possible).
 
 ## What it does
 
-- **Refresh from MAS** — downloads `https://eservices.mas.gov.sg/fid/institution/print`
-  on demand, validates it, and stores it as `FID_<today>.xls`.
+- **Refresh from MAS** — fetches the directory on demand, validates it, and
+  stores it as `FID_<today>.xls`. Because `/print` is a JavaScript SPA, the
+  fetch is layered (see [How the fetch works](#how-the-fetch-works)):
+  a plain HTTP GET first, then a headless Chromium that runs the page's JS.
 - **Week-over-week delta** — compares the **two most recent** snapshots
   (newest vs. previous), regardless of how many days apart they are.
   - Net change, new count, removed count KPIs.
@@ -68,17 +70,41 @@ delta needs **two** snapshots — click Refresh or upload a second file.
 |---|---|---|
 | `MAS_DATA_DIR` | `./mas_data` (local) / `/data` (Docker) | Where snapshots are stored |
 | `MAS_MAX_FILES` | `10` | Auto-cleanup threshold |
+| `MAS_FETCH_METHOD` | `auto` | `auto` (HTTP then headless browser), `requests`, or `playwright` |
 | `MAS_FID_PRINT_URL` | `https://eservices.mas.gov.sg/fid/institution/print` | Export endpoint |
 | `MAS_FID_BASE_URL` | `https://eservices.mas.gov.sg/fid/institution` | Used to prime cookies / referer |
 | `MAS_FETCH_TIMEOUT` | `120` | HTTP timeout (seconds) |
+| `MAS_PLAYWRIGHT_TIMEOUT` | `60000` | Headless-browser navigation timeout (ms) |
+| `MAS_CHROMIUM_PATH` | _(auto)_ | Explicit Chromium binary; only needed if Playwright can't auto-locate one |
 | `PORT` | `8000` | Listen port |
+
+## How the fetch works
+
+`/fid/institution/print` is an Angular SPA, so a plain HTTP GET only returns the
+page shell. Refresh therefore tries, in order (controlled by `MAS_FETCH_METHOD`):
+
+1. **HTTP GET** (`requests`) — fast; used if MAS ever streams the file directly.
+   The response is validated, and rejected if it's just the SPA shell.
+2. **Headless Chromium** (`playwright`) — loads the page, runs its JS, then:
+   1. uses the underlying **XHR/JSON** the SPA fetches (cleanest), else
+   2. captures a **JS-triggered file download**, else
+   3. **scrapes the rendered HTML table**.
+
+Whatever the source, the data is normalised to the canonical 9-column
+tab-separated layout (column headers are alias-matched, e.g. `Telephone` →
+`Phone Number`), validated for a plausible row count, and saved. The headless
+browser and all its OS dependencies ship in the Docker image, so no extra setup
+is needed there.
+
+> Running outside Docker? Install the browser once with
+> `playwright install chromium` (or `--with-deps` on Linux).
 
 ## Network requirement / manual fallback
 
 Auto-refresh needs outbound HTTPS access to `eservices.mas.gov.sg` **from the
 container**. If the host is blocked (egress policy, captcha, or a MAS layout
-change), Refresh fails gracefully with a clear message and the **Config tab**
-lets you upload the export by hand:
+change), Refresh fails gracefully with a clear message (it reports what each
+method tried) and the **Config tab** lets you upload the export by hand:
 
 1. Open <https://eservices.mas.gov.sg/fid/institution/print> in a browser.
 2. Save the file.
@@ -100,18 +126,21 @@ these identity keys between the two most recent snapshots. Administrative
 
 ```
 app.py             Flask app + REST API
-fetcher.py         MAS download + validation
+fetcher.py         Layered MAS download (HTTP + headless browser) + normalisation
 mas_scrapper.py    Core analysis (load, dedupe, delta, filter) — notebook-compatible
 mas_scrapper.ipynb Original notebook workflow (still works against mas_scrapper.py)
 static/            Frontend (Privé internal design system, no build step)
-  index.html, app.js, styles.css, theme.css, assets/prive-logo.svg
+  index.html, app.js, styles.css, theme.css
+  assets/prive-logo-dark.svg, assets/prive-logo-light.svg
 Dockerfile, docker-compose.yml
 mas_data/          Local snapshots (sample FID_2026-06-22.xls included)
 ```
 
-> **Note on the logo:** `static/assets/prive-logo.svg` is a fallback wordmark.
-> Drop in the official `prive-logo.png` and update the `<img>` src in
-> `static/index.html` when available.
+> **Note on the logo:** the two SVGs in `static/assets/` are fallback wordmarks.
+> The header automatically prefers official PNGs if present — just drop
+> `prive-logo-dark.png` and `prive-logo-light.png` into `static/assets/`
+> (no code change needed). The dark variant is used in dark theme, the light
+> variant in light theme.
 
 ## API (for reference)
 

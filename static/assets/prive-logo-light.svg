@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="78" height="28" viewBox="0 0 78 28" role="img" aria-label="Privé">
+  <!-- FALLBACK wordmark for LIGHT theme. Replace with the official
+       prive-logo-light.png (same name) and it will be used automatically. -->
+  <text x="0" y="21" fill="#0E3C5C"
+        font-family="'Proxima Nova','Segoe UI',system-ui,sans-serif"
+        font-weight="700" font-size="23" letter-spacing="0.3">Priv<tspan fill="#FF8A3D">é</tspan></text>
+</svg>
