@@ -320,4 +320,4 @@ def api_delete(name: str):
 
 if __name__ == "__main__":
     core.data_dir()  # ensure it exists
-    app.run(host="0.0.0.0", port=int(__import__("os").environ.get("PORT", "8000")))
+    app.run(host="0.0.0.0", port=int(__import__("os").environ.get("PORT", "5570")))

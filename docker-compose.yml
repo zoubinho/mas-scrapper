@@ -1,10 +1,14 @@
 services:
   mas-fid:
-    build: .
-    container_name: mas-fid
+    # Use the pre-built image from GHCR…
+    image: ghcr.io/zoubinho/mas-scrapper:main
+    # …or build locally instead by commenting out `image:` above and using:
+    # build: .
+    container_name: mas-scrapper
     ports:
-      - "8000:8000"
+      - "5570:5570"
     environment:
+      PORT: "5570"
       MAS_DATA_DIR: /data
       MAS_MAX_FILES: "10"
       # Fetch strategy: auto (HTTP then headless browser) | requests | playwright

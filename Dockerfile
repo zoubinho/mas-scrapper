@@ -10,7 +10,7 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     MAS_DATA_DIR=/data \
     MAS_FETCH_METHOD=auto \
-    PORT=8000
+    PORT=5570
 
 WORKDIR /app
 
@@ -24,10 +24,11 @@ COPY static ./static
 RUN mkdir -p /data
 VOLUME ["/data"]
 
-EXPOSE 8000
+EXPOSE 5570
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/healthz').status==200 else 1)"
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD python -c "import os,urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:'+os.environ.get('PORT','5570')+'/healthz').status==200 else 1)"
 
-# 2 workers; generous timeout for the on-demand headless-browser fetch
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "2", "--timeout", "180", "app:app"]
+# 2 workers; generous timeout for the on-demand headless-browser fetch.
+# `exec` so gunicorn is PID 1 and receives SIGTERM from `docker stop`.
+CMD ["sh", "-c", "exec gunicorn --bind 0.0.0.0:${PORT:-5570} --workers 2 --timeout 180 app:app"]
