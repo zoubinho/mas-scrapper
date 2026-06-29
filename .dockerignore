@@ -4,6 +4,6 @@ __pycache__/
 *.pyc
 .ipynb_checkpoints/
 *.ipynb
-mas_data/
+mas_data/*.tmp
 scratchpad/
 README.md

@@ -48,14 +48,21 @@ docker run -d --name mas-scrapper --restart unless-stopped -p 5570:5570 \
 # open http://<server>:5570
 ```
 
-**Persist snapshots across container re-creation** by mounting a volume
-(otherwise data lives in an anonymous volume that survives restarts but not
-`docker rm` + fresh `docker run`):
+The image ships with seed exports in `/app/mas_data`, so all tabs have data on
+first run and the week-over-week delta works immediately. **Refresh** downloads
+the latest directory and stores it next to them as `FID_<date>.xls`.
+
+**Persist refreshed snapshots across container re-creation** by mounting a named
+volume over the store (it initialises from the seed exports on first creation,
+then keeps everything Refresh adds):
 
 ```bash
 docker run -d --name mas-scrapper --restart unless-stopped -p 5570:5570 \
-  -v mas_data:/data ghcr.io/zoubinho/mas-scrapper:main
+  -v mas_data:/app/mas_data ghcr.io/zoubinho/mas-scrapper:main
 ```
+
+> Upgrading from an older image that used `/data`? Remove the stale volume once
+> so the new store seeds correctly: `docker rm -f mas-scrapper && docker volume rm mas_data`.
 
 > **First-time setup (one-off):** the `:main` tag exists once the workflow has
 > run on the `main` branch (merge this branch first, or trigger the workflow
@@ -75,16 +82,16 @@ docker compose up -d        # pulls ghcr.io/zoubinho/mas-scrapper:main
 # open http://localhost:5570
 ```
 
-Snapshots persist in the named volume `mas_data` (mounted at `/data`). To build
-locally instead of pulling, comment out `image:` and uncomment `build: .` in
-`docker-compose.yml`.
+Snapshots persist in the named volume `mas_data` (mounted at `/app/mas_data`,
+seeded from the image's bundled exports). To build locally instead of pulling,
+comment out `image:` and uncomment `build: .` in `docker-compose.yml`.
 
 ## Build the image yourself
 
 ```bash
 docker build -t mas-scrapper .
 docker run -d --name mas-scrapper --restart unless-stopped -p 5570:5570 \
-  -v mas_data:/data mas-scrapper
+  -v mas_data:/app/mas_data mas-scrapper
 ```
 
 ## Run locally (dev)
@@ -96,15 +103,16 @@ playwright install chromium   # one-off, for auto-refresh outside Docker
 python app.py                 # http://localhost:5570  (PORT env to override)
 ```
 
-Locally the data directory defaults to `./mas_data` (where the sample
-`FID_2026-06-22.xls` lives, so the Directory tab works immediately). The
-delta needs **two** snapshots — click Refresh or upload a second file.
+Locally the data directory defaults to `./mas_data`, which ships with two real
+exports (`FID_2026-06-10.xls` and `FID_2026-06-22.xls`) so every tab — including
+the week-over-week delta — works immediately. Refresh and manual uploads land in
+the same folder.
 
 ## Configuration (environment variables)
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `MAS_DATA_DIR` | `./mas_data` (local) / `/data` (Docker) | Where snapshots are stored |
+| `MAS_DATA_DIR` | `./mas_data` (local) / `/app/mas_data` (Docker) | Snapshot store: seed exports + files Refresh downloads |
 | `MAS_MAX_FILES` | `10` | Auto-cleanup threshold |
 | `MAS_FETCH_METHOD` | `auto` | `auto` (HTTP then headless browser), `requests`, or `playwright` |
 | `MAS_FID_PRINT_URL` | `https://eservices.mas.gov.sg/fid/institution/print` | Export endpoint |
@@ -169,7 +177,7 @@ static/            Frontend (Privé internal design system, no build step)
   index.html, app.js, styles.css, theme.css
   assets/prive-logo-dark.svg, assets/prive-logo-light.svg
 Dockerfile, docker-compose.yml
-mas_data/          Local snapshots (sample FID_2026-06-22.xls included)
+mas_data/          Snapshot store + seed exports (FID_2026-06-10/22.xls), shipped in the image
 ```
 
 > **Note on the logo:** the two SVGs in `static/assets/` are fallback wordmarks.
