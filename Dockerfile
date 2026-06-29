@@ -8,7 +8,7 @@ FROM mcr.microsoft.com/playwright/python:v1.48.0-jammy
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    MAS_DATA_DIR=/data \
+    MAS_DATA_DIR=/app/mas_data \
     MAS_FETCH_METHOD=auto \
     PORT=5570
 
@@ -20,9 +20,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY mas_scrapper.py fetcher.py app.py ./
 COPY static ./static
 
-# Persistent snapshot storage (mount a volume here in production)
-RUN mkdir -p /data
-VOLUME ["/data"]
+# Snapshot store: the seed exports ship in the image so the app has data in all
+# tabs on first run, and Refresh writes new FID_<date>.xls files here too.
+# Declaring it a VOLUME means a mounted (named/anonymous) volume is initialised
+# from these seed files on first creation and then persists refreshed snapshots.
+COPY mas_data ./mas_data
+VOLUME ["/app/mas_data"]
 
 EXPOSE 5570
 

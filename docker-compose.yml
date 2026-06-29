@@ -9,14 +9,16 @@ services:
       - "5570:5570"
     environment:
       PORT: "5570"
-      MAS_DATA_DIR: /data
+      MAS_DATA_DIR: /app/mas_data
       MAS_MAX_FILES: "10"
       # Fetch strategy: auto (HTTP then headless browser) | requests | playwright
       MAS_FETCH_METHOD: auto
       # Override if MAS changes the export endpoint:
       # MAS_FID_PRINT_URL: https://eservices.mas.gov.sg/fid/institution/print
     volumes:
-      - mas_data:/data
+      # Named volume initialises from the image's seed exports on first run,
+      # then persists snapshots that Refresh downloads.
+      - mas_data:/app/mas_data
     restart: unless-stopped
 
 volumes:
